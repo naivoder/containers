@@ -9,7 +9,7 @@
 
 2. add non-root user to local ```docker``` Unix group: ```sudo usermod -aG docker your-name```
 
-*if adding "self", must log out and log back in for group changes to be reflected*
+   *if adding "self", must log out and log back in for group changes to be reflected*
    
 3. confirm group change with: ```cat /etc/group | grep docker```
 
@@ -27,4 +27,4 @@ To do this, in terminal window run commands:
 1. ```sudo systemctl start docker```
 2. ```sudo systemctl enable docker```
 
-This will enable the Docker daemon at boot.
+This will enable the Docker daemon at boot :+1:
