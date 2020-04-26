@@ -25,3 +25,12 @@
   
   b. ```docker system info```
 
+### initialization
+You may need to manually start the Docker daemon if installing on a Linux desktop!
+
+To do this, in terminal window run commands:
+
+1. ```sudo systemctl start docker```
+2. ```sudo systemctl enable docker```
+
+This will enable the Docker daemon at boot.
