@@ -1,0 +1,54 @@
+###--- Notes on Docker Engine ---###
+____________________________________
+
+1) What the heck?
+-----------------
+
+	- command issued at CLI, like `docker container run`
+	- command converted into REST API payload and POSTed to endpoint (Docker daemon)
+	- daemon tells containerd to make new container via CRUD API over gRPC
+	- containerd (another daemon) converts requested Docker image into OCI compliant bundle
+	- containerd gives bundle to new fork of runc, runc interfaces with OS kernel
+	- container process starts as child process of runc, runc terminates
+	- containerd shim becomes parent, maintains IO streams and reports exit status
+
+2) Why?
+-------
+
+	"Decoupling container runtime from Docker daemon (i.e. 'daemonless containers') makes it possible to perform maintenance and upgrades on Docker daemon without impacting running containers."  -Nigel Poulton, "Docker Deep Dive"
+
+	- no longer need to kill running processes in production environment when updating daemon
+
+3) Linux Binaries:
+------------------
+
+	- dockerd
+	- docker-containerd
+	- docker-containerd-shim
+	- docker-runc
+
+4) Docker daemon functionality:
+-------------------------------
+
+	- image management
+	- image builds
+	- REST API
+	- authentication
+	- security
+	- core networking
+	- orchestration
+
+5) runc Functionality:
+----------------------
+
+	- default implementation of OCI container-runtime-spec
+	- expects containers from OCI compliant bundles
+	- based on code from libcontainer
+	- can be used as standalone CLI and integrated with other projects
+
+5) Modular design:
+------------------
+
+	- Docker API (HTTP)			=>		Docker daemon
+	- Container execution		=>		containerd
+	- Container runtime 		=>		runc
