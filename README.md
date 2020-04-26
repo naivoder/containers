@@ -15,9 +15,9 @@
 
 4. verify installation:
 
-  a. ```docker --version```
+      a. ```docker --version```
   
-  b. ```docker system info```
+      b. ```docker system info```
 
 ### initialization
 You may need to manually start the Docker daemon if installing on a Linux desktop!
