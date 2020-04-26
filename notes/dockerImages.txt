@@ -117,4 +117,12 @@ ____________________________________
   - deleting image removes all image layers from host
   - use `docker image rm` command
   - cannot delete image in use by container
-  - 
+  - remove ALL images via `docker image rm $(docker image ls -q) -f` command
+
+10) Major Commands:
+-------------------
+
+  - `docker image pull`
+  - `docker image ls`
+  - `docker image inspect`
+  - `docker image rm`
