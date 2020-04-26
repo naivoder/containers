@@ -1,0 +1,120 @@
+###--- Notes on Docker Images ---###
+____________________________________
+
+0) Basics:
+----------
+
+  - similar to VM templates (ops)
+  - similar to classes (dev)
+  - pull images from registry (like Docker Hub)
+  - made of multiple layers, stacked and represented as single object
+  - contain stripped OS, files and dependencies required to run application
+  - tend to be small, lightweight (desirable)
+  - image is reall just configuration object that lists layers and metadata
+
+1) Images vs Containers:
+------------------------
+
+  - Images      = build-time constructs
+  - Containers  = run-time constructs
+
+  - one or more containers built from image
+  - image cannot be removed until all containers referencing it have been destroyed
+  - usually small (stripped of non-essential parts)
+  - local image repo at /var/lib/docker/<storage-driver> (overlay2)
+  - inspect with `docker image ls`
+  - retrieve images from registry by "pulling"
+
+2) Image Registries:
+--------------------
+
+  - most common is Docker Hub (default), others exist
+  - registry can contain multiple repositories
+  - repository can contain multiple images
+  - official repositories are vetted by Docker Inc., can be trusted
+  - unofficial repositories should not be trusted, can have good code
+  - most popular applications have repos at top level of Docker namespace
+  - CLI-official `docker image pull <repository>:<tag>`
+  - default <tag> is "latest", but does not guarantee newest!
+  - CLI-unofficial `docker image pull <user/org>/<repository>:<tag>`
+  - to pull all images in repository use -a flag
+  - images can have multiple tags, tags are arbitrary
+
+3) Filtering `docker image ls`:
+-------------------------------
+
+  - use --filter flag to filter returned list of images
+  - ex: `docker image ls --filter dangling=true`
+  - dangling images are images that are no longer tagged
+  - can remove all dangling images `docker image prune`
+  - adding -a flag to prune command will remove all unused images
+  - filters: [dangling(bool), before(name), since(name), label, reference]
+  - ex: `docker image ls --filter=reference="*:latest"`
+  - `docker image ls -q` returns list of image IDs
+
+4) Searching Docker Hub from CLI:
+---------------------------------
+
+  - ex: `docker search alpine`
+
+  - returns: NAME       DESCRIPTION       STARS       OFFICIAL
+            ___________________________________________________
+
+            "...."  |  "..........."  |  "-----"  |  "--------"
+
+  - pattern match against strings in "Name" field
+  - use --filter flag to filter output based on any return column
+  - use --limit flag to increase default display from 25 to max 100
+
+5) Image Layers:
+----------------
+
+  - image = many loosely connected read-only layers
+  - Docker stacks layers and represents them as single object
+  - output of `docker image pull` command shows each layer
+  - can also use `docker image inspect`
+  - all docker images start with base layer, new content = added layer
+  - updated file versions obscure files inline (below), higher level version takes precedence
+  - this is very much like class inheritance in Python
+  - storage driver (overlay2) is responsible for stacking and presentation
+  - storage driver a.k.a. graph driver
+
+6) Layer Sharing:
+-----------------
+
+  - multiple images can share layers, leading to space and performance efficiencies
+  - will only pull unique layers from images in repositories
+
+7) Pull by Digest:
+------------------
+
+  - tags are mutable, possible to tag image with incorrect label...
+  - digest = cryptographic content hash
+  - each image gets unique digest
+  - pull by digest avoids uncertainty
+  - ex: `docker image rm alpine:latest`
+        'docker image pull alpine@sha###...################'
+  - since data is compressed when pushed/pulled, content hash would change...
+    to get around this, each layer gets "distribution hash", compressed version of layer
+  - distribution hash is used to verify push/pull
+  - "content addressable storage model" improves security, avoids naming collisions
+
+8) Multi-architecture Images:
+-----------------------------
+
+  - Docker supports multi-architecture images
+  - single image <repository>:<tag> can support x64, ARM
+  - to make this happen Registry API supports:
+    1) manifest list - list of supported architectures
+    2) manifests - image config and layer data
+  - this happens automatically, do not need to specify in run command
+  - `docker container run --rm golang go version` outputs "go version go1.14.2 linux/amd64"
+  - creating images for multiple architectures is optional, additional work
+
+9) Deleting Images:
+-------------------
+
+  - deleting image removes all image layers from host
+  - use `docker image rm` command
+  - cannot delete image in use by container
+  - 
