@@ -1,0 +1,114 @@
+###--- Notes on Docker Containers ---###
+________________________________________
+
+0) Basics:
+----------
+
+  - container is a runtime instance of an image
+  - containers are more lightweight than VMs
+  - share OS/kernal with host
+  - single image can run multiple containers
+  - `docker container run -it` starts container with bash shell
+  - `ctrl PQ` exits container shell to host shell
+  - containers run until app execution ends
+
+1) Containers vs VMs:
+---------------------
+
+  - both require host to run
+  - in VMs, hypervisors perform hardware virtualization...
+    (carve up physical resources into virtual versions)
+  - containers perform OS virtualization
+    (carve up OS resources into virtual versions)
+  - VM Tax: each VM requires distinct OS
+    -> each OS has baggage, overhead
+    -> consumes CPU, RAM, storage
+    -> some require individual licenses
+    -> additional attack surfaces
+  - container model has single kernal running in host OS
+  - possible to run hundreds of containers on single system (single OS!)
+  - container starts much faster than VM (< 1s)
+  - only impact to container start time is application
+
+2) Running Containers:
+----------------------
+
+  *if Linux system using Systemd, check status of Docker daemon: `systemctl is-active docker`
+
+  - `docker container run <options> <image>:<tag> <app>`
+    ex: docker container run -it ubuntu:latest /bin/bash
+  - interactive terminal flag connects shell to host
+  - docker remote API at /var/run/docker.sock
+  - possible to configure for network communication
+  - default non-TLS port: 2375, default TLS port: 2376
+
+3) Container Processes:
+-----------------------
+
+  - in `docker container run -it ubuntu:latest /bin/bash` command, bash shell is ONLY process running in container
+  - exiting bash shell with `exit` will kill container
+  - `ctrl -PQ` exits container to host shell without killing Bash process in container
+  - container is still active and shell can be reattached with `exec` command and container ID
+    ex: `docker container exec -it 5738ef355474 bash`
+
+4) Container Lifecycle:
+-----------------------
+
+  - stopped containers are still persistent in nature (saved data will not be erased)
+  - however volumes are perferred way to store persistent data
+  - possible to delete running container with `docker container rm -f` flag
+  - best practice to stop container before deleting to allow running process a chance to exit cleanly
+  - `docker container stop` command is gentle, allows process to complete gracefully
+  - can start, stop, pause and restart containers without data loss
+  - if data stored in volume, will persist after container deleted
+  - `docker stop` issues SIGTERM POSIX signal to PID process, 10s before killing
+  - `docker rm <container> -f` issues SIGKILL POSIX signal immediately
+
+5) Restart Policy:
+------------------
+
+  - good practice to run containers with restart policy
+  - 'self-healing', enables restart after certain events or failures
+  - restart policies are applied per container
+  - can be configured imperatively at CLI or declaratively in Compose files
+  - current restart policies: [always, unless-stopped, on-failed]
+  - difference between always and unless-stopped policies:
+    "always" will cause stopped containers to restart when Docker daemon restarts
+  - restart Docker daemon with `systemctl restart docker`
+
+6) Webserver:
+-------------
+
+  - start container in background with -d flag (daemon mode)
+  - `docker container run -d --name webserver -p 80:8080`
+  - map ports on Docker host to ports inside docker container with -p flag
+  - in this instance the image defines web service listening to port 8080
+  - response available in browser at Docker Host localhost:80
+
+7) Inspecting Containers:
+-------------------------
+
+  - running `docker image inspect <image>:<tag>` will show metadata, default app
+  - common to initialize container with default commands
+  - serves as form of self-documentation, inspect image to see what app it runs
+
+8) Force Clean Up:
+------------------
+
+  *dangerous command, never use on production systems
+  - `docker container rm $(docker container ls -aq) -f`
+  - kills all running containers on host
+
+9) Major Commands:
+------------------
+
+  - `docker container run`
+  - `ctrl -PQ`
+  - `docker container ls`
+  - `docker container exec`
+  - `docker container stop`
+  - `docker container start`
+  - `docker container rm`
+  - `docker container inspect`
+
+  
