@@ -1,0 +1,135 @@
+###--- Notes on Containerizing Applications ---###
+__________________________________________________
+
+0) Basics:
+----------
+
+  - containers make apps simple to build, ship and run
+  - the Dockerfile describes the app, its dependencies, and how to run it
+  - the `docker image build` command uses Dockerfile to create image
+  - image should be `push`ed to Docker Hub or other repository
+
+1) Dockerfile:
+--------------
+
+  - directory containing application = "build context"
+  - best practice is to keep Dockerfile in root of build context
+  - Dockerfile MUST start with capital "D"
+  - main purposes:
+    - describe application
+    - give instructions to containerize
+  - serves as form of documentation
+  - instructions not case sensitive, but best practice is all caps
+  - new layer instructions: FROM, RUN, COPY (adding content)
+  - metadata instructions: EXPOSE, WORKDIR, ENV, ENTRYPOINT (adding instructions)
+  - can view instructions used to build image with `docker image history` command
+
+2) FROM instruction:
+--------------------
+
+  - base layer of image
+  - important that FROM refers to image of correct OS
+
+3) LABEL instruction:
+---------------------
+
+  - key=value pair
+  - add custom metadata to an image
+  - best practice to list maintainer with contact email
+
+4) RUN instruction:
+-------------------
+
+  - used to install required packages and application dependencies
+  - adds a new layer to image every time it is used
+
+5) COPY instruction:
+--------------------
+
+  - copy app files from build context as new image layer
+
+6) WORKDIR instruction:
+-----------------------
+
+  - set working directory relative to image
+  - added as metadata to the image config
+
+7) ENTRYPOINT instruction:
+--------------------------
+
+  - set main application that container should run as default
+  - added as metadata to the image config
+
+8) Building the image:
+----------------------
+
+  - use `-t` flag to add arbitrary tag to image build
+  - best practice is to run build command from root of build context
+    ex: `docker image build .` (note the '.' included to indicate current working directory)
+  - after building use `docker image ls` to confirm it exists on local repository
+  - inspect the image with `docker image inspect <repo>:<tag>` to verify all configured settings
+
+9) Pushing images:
+------------------
+
+  - store image in repository to keep safe and make available to others
+  - login to Docker hub wit `docker login` (must make account first...)
+  - Docker requires following information:
+    - registry (default = docker.io)
+    - repository
+    - tag (default = latest)
+  - must specifiy approriate repository (personal namespace!)
+  - remember, only official images sit at root namespace of Docker Hub...
+  - tag image appropriately with user namespace
+    ex: `docker image tag web:latest naivoder/web:latest` (using my namespace for demo)
+  - push to Hub with `docker image push naivoder/web:latest`
+
+10) Running the app:
+--------------------
+
+  - pull latest app image from image repository
+  - `docker container run` commmand plus required switches depending on application
+  - use `-d` flag to run container as background process (no interactive terminal)
+
+10) Multi-stage builds:
+-----------------------
+
+  - keeping images small can be difficult when build tools arent manually removed after each installation
+  - the "builder pattern" of having two Dockerfiles (one .dev) works, but is overly complex
+  - multistage builds optimize without added complexity, using single Dockerfile
+  - uses multiple FROM instructions, denoted "AS" distinct build stages
+  - early stages build large images containing lots of build stuff but little app code
+  - final stage copies ONLY production related app code from previous stages (not build artifacts)
+  - results in significantly smaller (and faster) final production image
+
+11) Leveraging build cache:
+---------------------------
+
+  - docker checks build cache for identical "layer -> command" operations
+  - if found (cache hit), docker links to cached image layer and moves on with instructions
+  - at any point that a cached layer cannot be identified (cache miss), docker invalidates the cache
+  - if cache invalidated, all further "layer -> command" operations will be completed in full
+  - thus, writing the Dockerfile so that instructions with potential to change occur at end of file is best practice
+  - this means the any "cache miss" will occur later in build process and build will benefit as much as possible from cache
+
+12) Squashing images:
+---------------------
+
+  - squashing = representing image as single layer
+  - squashed images do not share layers with cache = storage inefficiences and larger push/pull operations
+  - in general, squashing is not best practice
+  - can be good in situations where creating a large base image from which other images will be built ("template image")
+
+12) No-install recommends (Ubuntu Linux):
+-----------------------------------------
+
+  - if using apt package manager, use `no-install-recommends` flag with `apt-get install` command
+  - ensures app only installs main dependencies, reducing image size significantly
+
+13) Major commands:
+-------------------
+
+  - `docker image build`, `-t` tag, `-f` Dockerfile location
+  - `docker login`
+  - `docker image inspect`
+  - `docker image history`
