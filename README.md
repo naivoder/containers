@@ -30,4 +30,6 @@ To do this, in terminal window run commands:
 This will enable the Docker daemon at boot :+1:
 
 ### basics
-I have included my notes in the /notes directory, so that anyone who wants to get a high level understanding of Docker fundamentals can quickly learn the important features and commands.
+I have included my notes in the /notes/ directory, so that anyone who wants to get a high level understanding of Docker fundamentals can quickly learn the important features and commands. 
+
+I learned using [Nigel Poulton's *Docker Deep Dive*](https://www.amazon.com/Docker-Deep-Dive-Nigel-Poulton/dp/1521822808), which I highly recommend. 
