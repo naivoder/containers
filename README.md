@@ -28,3 +28,6 @@ To do this, in terminal window run commands:
 2. ```sudo systemctl enable docker```
 
 This will enable the Docker daemon at boot :+1:
+
+### basics
+I have included my notes in the /notes directory, so that anyone who wants to get a high level understanding of Docker fundamentals can quickly learn the important features and commands.
