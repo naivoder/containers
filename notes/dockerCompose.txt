@@ -1,0 +1,41 @@
+###--- Notes on Deploying Applications with Docker Compose ---###
+_________________________________________________________________
+
+0) Basics:
+----------
+
+  - deploy multi-container applications with Docker Compose
+  - similar to Docker Stacks, but uses nodes in 'single engine mode'
+  - most apps made of 'microservices', multiple small services
+  - describe app in single declarative configuration file and single commands
+
+1) Background:
+--------------
+
+  - formerly known as Fig
+  - external python binary package
+  - define multi-container apps in YAML file
+
+2) Linux Install:
+-----------------
+
+  * latest package at time of writing, check latest release on Github
+  - curl -L https://github.com/docker/compose/releases/download/1.25.5/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+  - chmod +x /usr/local/bin/docker-compose
+
+3) Compose files:
+-----------------
+
+  - uses YAML files (YAML is subset of JSON, could use JSON)
+  - default name is docker-compose.yml
+  - use `-f` flag to give custome filename
+  - four (of many) top level keys:
+    1) version - mandatory, defines Compose file format (normally use latest)
+    2) services - define different app services, each deployed as container
+      a) build: . - build image using Dockerfile in cwd
+      b) command - defines a main application for the container, which must exist in the image
+      c) ports - map container port (target) to host (published)
+      d) networks - which network to attach service to, should already exist or be defined in top level
+      e) volumes - mount service volume (source) to /code (target) inside container
+    3) networks - instructions to create new networks (normally 'bridge', use driver property to specify)
+    4) volumes - instructions to create new volumes
