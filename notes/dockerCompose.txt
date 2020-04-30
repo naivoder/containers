@@ -39,3 +39,43 @@ _________________________________________________________________
       e) volumes - mount service volume (source) to /code (target) inside container
     3) networks - instructions to create new networks (normally 'bridge', use driver property to specify)
     4) volumes - instructions to create new volumes
+  - will check for volume existence before creating new volumes
+  - volume is created and mounted into working directory in app (/code)
+
+4) Deploying Apps:
+------------------
+
+  - use command line within project repository to run Compose commands
+  - `docker compose up &` to build images, create networks and volumes and start containers
+  - and `-f name.yml up` to specify Compose file if not default name
+  - use `-d` flag to operate app in daemon mode (background)
+  - use `&` to return command of terminal window during verbose output
+  - inspect network, volume with `docker network ls` and `docker volume ls`
+
+5) Managing Apps:
+-----------------
+
+    - bring down running app with `docker-compose down`
+    - will kill services, network, and 'up' process but NOT volume
+    - volumes are persistent, decoupled from containers, volume data is retained long-term
+    - any images build as part of the `docker-compose up` operation will be retained
+    - view running services with `docker-compose ps` command
+    - list service processes with `docker-compose top` command
+    - use `docker-compose stop` command to halt app without deleting resources
+    - delete stopped compose app with `docker-compose rm` (wont delete volumes, app source code or images)
+    * `down` is equivalent of `stop` AND `rm` together
+    - to restart app `docker-compose restart
+    - each Docker volume is exposed at a location within the host's filesystem
+    - use `docker volume inspect example | grep Mount`
+    - copy updated app code to volumes mount point to update live application (without affecting volume data!)
+
+6) Major Commands:
+------------------
+
+  - `docker-compose up`
+  - `docker-compose down`
+  - `docker-compose stop`
+  - `docker-compose rm`
+  - `docker-compose restart`
+  - `docker-compose ps`
+  - `docker-compose top`
