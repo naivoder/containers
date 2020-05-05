@@ -1,0 +1,42 @@
+###--- Notes on Docker Swarm ---###
+___________________________________
+
+0) Basics:
+----------
+
+  - two major components:
+    1) secure cluster
+    2) orchestration engine
+  - used to work at scale
+  - enterprise-grade hosts
+  - distributed cluster store
+  - encrypted networks
+  - mutual TLS
+  - secure cluster join tokens
+  - add/remove nodes non-disruptively
+  - support for Kubernetes apps
+
+1) Swarm Mode:
+--------------
+
+  - one or more Docker nodes (VMs, servers, Rpis, cloud instances, etc.)
+  - configured as "managers" or "workers"
+  - managers: oversee control plane, state of cluster, dispatching of tasks
+  - workers: accept and execute tasks
+  - configuration state is held in distributed etcd file on managers
+  - TLS tightly integrated: encrypted communications, authenticated nodes, authorized roles, automatic key rotation
+  - atomic unit of scheduling is "service", API object that wraps a container
+  - when container is wrapped in service it becomes "task" or "replica"
+  - service adds: scaling, rolling updates, simple rollbacks
+
+2) Initializing a Swarm:
+------------------------
+
+  - Init Manager 1 -> Join additional Managers -> Join Worker nodes
+  - Docker nodes NOT part of swarm are in "single engine mode"
+  - Docker nodes in swarm are called "swarm mode"
+  - run `docker swarm init` on host in single engine mode
+    1) to switch to swarm mode
+    2) create new swarm
+    3) init host as first manager
+    
