@@ -39,4 +39,106 @@ ___________________________________
     1) to switch to swarm mode
     2) create new swarm
     3) init host as first manager
-    
+  - use `--advertise-addr` and `--listen-addr` to specify IP and port that nodes should communicate over
+  - default swarm mode port is 2377
+  - list nodes with `docker node ls`, must be manager node to use
+  - get tokens with `docker swarm join-token` and 'manager' or 'worker'
+  - ensure that join tokens are protected, they are the only requirement for joining swarm
+  - 'manager status' shows leader/reachable or None for worker
+  - specifiying network configuration can prevent problems later on
+
+3) Manager High Availability:
+-----------------------------
+
+  - one or more managers can fail and survivors will keep swarm running
+  - non 'leaders' are inactive, and simply pass commands along to leader node
+  - only 'leader' executes commands on the swarm
+  - best practices for HA Raft consensus algorithm:
+    1) deploy odd number of managers - reduces chance of "split brain" or managers on separate network partitions
+    2) don't deploy too many (3 or 5 recommended)
+  - quorum consensus means that if partitioned the side with more nodes becomes majority manager
+  - do NOT host active applications across multiple cloud providers (like AWS, azure)
+
+4) Swarm Security:
+------------------
+
+  - built-in: CA settings, join tokens, mutual TLS, encrypted cluster stored and more!
+
+5) Locking Swarm:
+-----------------
+
+  - despite security, restarting old managers or restoring backups can compromise cluster
+    (old managers automatically decrypt Raft log time-series database, old backups can wipe swarm configuration)
+  - lock swarm with Autolock feature, forces managers to resent the cluster unlock key before being readmitted
+  - change existing swarm with `docker swarm update --autolock=True`
+  - keep unlock key in secure place!
+  - restart manager nodes with `service docker restart`
+  - use `docker swarm unlock` command to permit reentry of manger node
+
+6) Swarm Services:
+------------------
+
+  - only exist in swarm mode (new construct as of 1.12 release)
+  - define name, port, mappings, networks, images but also 'desired state'
+    (for instance, site should have 5 running replicas to handle daily traffic)
+  - make new service with `docker service create`
+  - common flags include `--name`, `-p` (port mappings), `--replicas`
+  - runs background reconciliation loop that compares active state to desired state
+  - using `-p 80:80` is "swarm wide" mapping or "ingress mode", nodes not running replica also get mapping
+
+7) Inspecting Services:
+-----------------------
+
+  - see all services running on swarm with `docker service ls`
+  - see specifics of each replica use `docker service ps`
+  - for more detail use `docker service inspect`
+  - the `--pretty` flag will format most important info
+
+8) Replicated vs Global Services:
+---------------------------------
+
+  - default mode is replicated, deploys desired number of replicas evenly across cluster
+  - global mode runs a single replica on every node in the Swarm
+  - pass `--mode global` to create command to run in global mode
+
+9) Scaling a Service:
+---------------------
+
+  - increase/decrease number of replicas with `docker service scale (name)=#`
+  - changes 'desired state' internally
+  - verify operation success using `docker service ls` command
+
+10) Removing a Service:
+-----------------------
+
+  - remove with `docker service rm (name)`
+  - remove all with `docker service rm $(docker service ls)`
+  - will delete ALL replicas without confirmation!
+
+11) Overlay Networks:
+---------------------
+
+  - create overlay network with `docker network create -d overlay (name)`
+  - creates second layer network on top of potentially multiple underlying networks
+  - all containers will be able to communicate even if the docker hosts are on different underlying networks
+  - run `docker network ls` to verify
+  - attach service to overlay network with `--network` flag
+
+12) Rolling Updates:
+--------------------
+
+  - run `docker service update` to push changes to live applications
+  - the `--update-parallelism` flag specifies the number of replicas updated at a time
+  - the `--update-delay` flag specifies a delay time for rolling update
+  - refreshing browser window multiple times will demonstrate as old replica is eventually replaced with new
+  - parallelism and delay settings will now be part of services network configuration
+
+13) Troubleshooting:
+--------------------
+
+  - service logs can be viewed using `docker service logs`
+  - not all logging drivers support command
+  - default configuration uses json-file log driver
+  - other drivers include journald, syslog, splunk, gelf
+  - force individual services to use different driver with `--log-driver` and `--log-opts` flags
+  
