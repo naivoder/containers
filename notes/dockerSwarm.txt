@@ -141,4 +141,19 @@ ___________________________________
   - default configuration uses json-file log driver
   - other drivers include journald, syslog, splunk, gelf
   - force individual services to use different driver with `--log-driver` and `--log-opts` flags
-  
+  - use `--follow`, `--tail`, `--details` for futher viewing options
+
+14) Major Commands:
+-------------------
+
+  - `docker swarm init`
+  - `docker swarm join-token`
+  - `docker node ls`
+  - `docker service create`
+  - `docker service ls`
+  - `docker service ps`
+  - `docker service inspect`
+  - `docker service scale`
+  - `docker service update`
+  - `docker service logs`
+  - `docker service rm`
